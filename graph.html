@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style> /* set the CSS */
+.chart rect {
+  fill: steelblue;
+}
+
+.chart text {
+  fill: white;
+  font: 10px sans-serif;
+  text-anchor: end;
+}
+
+</style>
+
+<head>
+  
+<!-- load the d3.js library -->    
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<!-- load the JQuery library -->    
+<script
+  src="https://code.jquery.com/jquery-3.2.1.js"
+  integrity="sha256-DZAnKJ/6XZ9si04Hgrsxu/8s717jcIzLy3oi35EouyE="
+  crossorigin="anonymous"></script>
+
+</head>
+<body>
+
+<svg class="chart"></svg>
+
+<script>
+var data=[]
+//on page initialization call addData function
+$(document).ready(function(){
+   addData();
+});
+
+var addData = function() {
+     url = 'https://secure-castle-8699.herokuapp.com/';
+     $.ajax({
+          type: "GET",
+          url: url,
+          async: true,
+          cache: false,
+          timeout:1000,
+          success: function(data){
+               if(data && data.length > 0){
+                    var jsonObj = JSON.parse(data); //parse data from server to JSON format
+                    appendData(jsonObj.val, new Date(jsonObj.time * 1000)); //pass to function with val field in JSON object and current timestamp
+               }
+               setTimeout(addData, 2000);
+          },
+          //handle error exceptions
+          error: function(XMLHttpRequest, textStatus, errorThrown){
+               console.log(textStatus + ', ' + errorThrown);
+               setTimeout(addData, 5000);
+          }
+     });
+}
+//append data to data array and passes on to graph
+var appendData = function (value, time) {
+     append_data=data.push(value)
+     graph(data);
+}
+
+//graph the data (no timestamp yet)
+var graph = function(data){
+      var width = 420,
+          barHeight = 20;
+
+      var x = d3.scale.linear()
+          .domain([0, d3.max(data)])
+          .range([0, width]);
+
+      var chart = d3.select(".chart")
+          .attr("width", width)
+          .attr("height", barHeight * data.length);
+
+      var bar = chart.selectAll("g")
+          .data(data)
+        .enter().append("g")
+          .attr("transform", function(d, i) { return "translate(0," + i * barHeight + ")"; });
+
+      bar.append("rect")
+          .attr("width", x)
+          .attr("height", barHeight - 1);
+
+      bar.append("text")
+          .attr("x", function(d) { return x(d) - 3; })
+          .attr("y", barHeight / 2)
+          .attr("dy", ".35em")
+          .text(function(d) { return d; });
+      }
+</script>
+</body>
