@@ -29,10 +29,10 @@
 <svg class="chart"></svg>
 
 <script>
-var data=[]
 //on page initialization call addData function
 $(document).ready(function(){
    addData();
+   var data=[]
 });
 
 var addData = function() {
@@ -59,7 +59,7 @@ var addData = function() {
 }
 //append data to data array and passes on to graph
 var appendData = function (value, time) {
-     append_data=data.push(value)
+     data=data.push(value)
      graph(data);
 }
 
